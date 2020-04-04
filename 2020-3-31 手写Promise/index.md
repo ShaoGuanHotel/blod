@@ -195,6 +195,236 @@ new myPromise((resolve, reject) => {
 
 ### 4. new Promise().then().then()...
 
-这个思路倒是挺简单，就是then函数返回值为另一个Promise实例。实现起来就比较huan。
+这个思路倒是挺简单，就是then函数返回值为另一个Promise实例。根据规范修改后如下：
 
-### 5.  catch、resolve、reject、race和all 
+``` javascript
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
+
+function resolvePromise(promise2, x, resolve, reject) {
+  // 循环引用报错
+  if (x === promise2) {
+    // reject报错
+    return reject(new TypeError('Chaining cycle detected for promise'));
+  }
+  // 防止多次调用
+  let called;
+  // x不是null 且x是对象或者函数
+  if (x != null && (typeof x === 'object' || typeof x === 'function')) {
+    try {
+      // A+规定，声明then = x的then方法
+      let then = x.then;
+      // 如果then是函数，就默认是promise了
+      if (typeof then === 'function') {
+        // 就让then执行 第一个参数是this   后面是成功的回调 和 失败的回调
+        then.call(x, y => {
+          // 成功和失败只能调用一个
+          if (called) return;
+          called = true;
+          // resolve的结果依旧是promise 那就继续解析
+          resolvePromise(promise2, y, resolve, reject);
+        }, err => {
+          // 成功和失败只能调用一个
+          if (called) return;
+          called = true;
+          reject(err); // 失败了就失败了
+        })
+      } else {
+        resolve(x); // 直接成功即可
+      }
+    } catch (e) {
+      // 也属于失败
+      if (called) return;
+      called = true;
+      // 取then出错了那就不要在继续执行了
+      reject(e);
+    }
+  } else {
+    resolve(x);
+  }
+}
+
+class Promise {
+  constructor(executor) {
+    this.state = PENDING
+    this.value = ''
+    this.reason = ''
+
+    // 成功存放的数组
+    this.onResolvedCallbacks = [];
+    // 失败存放法数组
+    this.onRejectedCallbacks = [];
+
+    let resolve = value => {
+      if (this.state === PENDING) {
+        this.state = FULFILLED
+        this.value = value
+        // pending->fulfilled 按照成功清单执行
+        this.onResolvedCallbacks.forEach(fn => fn())
+      }
+    }
+    let reject = reason => {
+      if (this.state === PENDING) {
+        this.state = REJECTED
+        this.reason = reason
+        // pending->rejected 按照异常清单执行
+        this.onRejectedCallbacks.forEach(fn => fn());
+      }
+    }
+    try {
+      executor(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  }
+  then(onFulfilled, onRejected) {
+    // onFulfilled如果不是函数，就忽略onFulfilled，直接返回value
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
+    // onRejected如果不是函数，就忽略onRejected，扔出错误
+    onRejected = typeof onRejected === 'function' ? onRejected : err => {
+      throw err
+    };
+    let promise2 = new Promise((resolve, reject) => {
+      if (this.state === FULFILLED) {
+        // 异步解决：
+        // onRejected返回一个普通的值，失败时如果直接等于 value => value，
+        // 则会跑到下一个then中的onFulfilled中，
+        setTimeout(() => {
+          try {
+            let x = onFulfilled(this.value);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        }, 0);
+      };
+      if (this.state === REJECTED) {
+        setTimeout(() => {
+          try {
+            let x = onRejected(this.reason);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        }, 0);
+      };
+      if (this.state === PENDING) {
+        this.onResolvedCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              let x = onFulfilled(this.value);
+              resolvePromise(promise2, x, resolve, reject);
+            } catch (e) {
+              reject(e);
+            }
+          }, 0);
+        });
+        this.onRejectedCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              let x = onRejected(this.reason);
+              resolvePromise(promise2, x, resolve, reject);
+            } catch (e) {
+              reject(e);
+            }
+          }, 0)
+        });
+      };
+    });
+    return promise2;
+  }
+}
+new Promise(resolve => {
+    console.log(0)
+    setTimeout(() => resolve(1), 3000)
+  })
+  .then(res => {
+    console.log(res)
+    return new Promise(resolve => {
+      console.log(2)
+      setTimeout(() => {
+        resolve(3)
+      }, 3000)
+    })
+  })
+  .then(res => {
+    console.log(res)
+  })
+```
+
+###  5.  catch、resolve、reject、race和all 
+
+####  1. catch(特殊的then方法)
+
+```javascript
+catch(fn){
+    return this.then(null,fn)
+}
+```
+
+#### 2. resolve(resolve一个值)
+
+``` javascript
+Promise.resolve = val => new Promise(resolve=> resolve(val))
+```
+
+#### 3. reject(reject一个值)
+
+``` javascript
+Promise.reject = val => new Promise((resolve,reject)=> reject(val))
+```
+
+#### 4. race
+
+ Promise.race([p1, p2, p3])里面哪个结果获得的快，就返回那个结果，不管结果本身是成功状态还是失败状态 。
+
+``` javascript
+Promise.race = promises =>
+  new Promise((resolve, reject) =>
+    promises.forEach(pro => pro.then(resolve, reject))
+  )
+```
+
+
+
+#### 5. all
+
+ Promise.all可以将多个Promise实例包装成一个新的Promise实例。同时，成功和失败的返回值是不同的，成功的时候返回的是一个结果数组，而失败的时候则返回最先被reject失败状态的值。
+
+``` javascript
+Promise.all = function (promises) {
+  return new Promise((resolve, reject) => {
+    let index = 0;
+    let result = [];
+    if (promises.length === 0) {
+      resolve(result);
+    } else {
+      function processValue(i, data) {
+        result[i] = data;
+        if (++index === promises.length) {
+          resolve(result);
+        }
+      }
+      for (let i = 0; i < promises.length; i++) {
+        //promises[i] 可能是普通值
+        Promise.resolve(promises[i]).then((data) => {
+          processValue(i, data);
+        }, (err) => {
+          reject(err);
+          return;
+        });
+      }
+    }
+  });
+}
+```
+
+本文旨在记录学习过程，通过手打代码加深印象，上面较难的代码参考了其他博客，可见
+
+[Promise的源码实现（完美符合Promise/A+规范）]( https://juejin.im/post/5c88e427f265da2d8d6a1c84#heading-25 )
+
+[BAT前端经典面试问题：史上最最最详细的手写Promise教程]( https://juejin.im/post/5b2f02cd5188252b937548ab )
+
+
+

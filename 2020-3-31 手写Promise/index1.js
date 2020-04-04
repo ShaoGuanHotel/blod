@@ -1,9 +1,9 @@
-const STATUS_PENDING = 'pending'
-const STATUS_FULFILLED = 'fulfilled'
-const STATUS_REJECTED = 'rejected'
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
 class myPromise {
   constructor(executor) {
-    this.status = STATUS_PENDING
+    this.state = PENDING
     this.value = ''
     this.reason = ''
 
@@ -13,16 +13,16 @@ class myPromise {
     this.onRejectedCallbacks = [];
 
     let resolve = value => {
-      if (this.status === STATUS_PENDING) {
-        this.status = STATUS_FULFILLED
+      if (this.state === PENDING) {
+        this.state = FULFILLED
         this.value = value
         // pending->fulfilled 按照成功清单执行
         this.onResolvedCallbacks.forEach(fn => fn())
       }
     }
     let reject = reason => {
-      if (this.status === STATUS_PENDING) {
-        this.status = STATUS_REJECTED
+      if (this.state === PENDING) {
+        this.state = REJECTED
         this.reason = reason
         // pending->rejected 按照异常清单执行
         this.onRejectedCallbacks.forEach(fn => fn());
@@ -35,14 +35,14 @@ class myPromise {
     }
   }
   then(onFulfilled = () => {}, onRejected = () => {}) {
-    if (this.status === STATUS_FULFILLED) {
+    if (this.state === FULFILLED) {
       onFulfilled(this.value)
     }
-    if (this.status === STATUS_REJECTED) {
+    if (this.state === REJECTED) {
       onRejected(this.reason)
     }
     // 忙碌状态,先记录老板吩咐的内容
-    if (this.status === STATUS_PENDING) {
+    if (this.state === PENDING) {
       // onFulfilled传入到成功数组
       this.onResolvedCallbacks.push(() => onFulfilled(this.value))
       // onRejected传入到失败数组

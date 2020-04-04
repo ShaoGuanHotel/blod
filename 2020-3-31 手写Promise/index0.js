@@ -1,21 +1,21 @@
-const STATUS_PENDING = 'pending'
-const STATUS_FULFILLED = 'fulfilled'
-const STATUS_REJECTED = 'rejected'
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
 class myPromise {
   constructor(executor) {
-    this.status = STATUS_PENDING
+    this.state = PENDING
     this.value = ''
     this.reason = ''
 
     let resolve = value => {
-      if (this.status === STATUS_PENDING) {
-        this.status = STATUS_FULFILLED
+      if (this.state === PENDING) {
+        this.state = FULFILLED
         this.value = value
       }
     }
     let reject = reason => {
-      if (this.status === STATUS_PENDING) {
-        this.status = STATUS_REJECTED
+      if (this.state === PENDING) {
+        this.state = REJECTED
         this.reason = reason
       }
     }
@@ -26,10 +26,10 @@ class myPromise {
     }
   }
   then(onFulfilled = () => {}, onRejected = () => {}) {
-    if (this.status === STATUS_FULFILLED) {
+    if (this.state === FULFILLED) {
       onFulfilled(this.value)
     }
-    if (this.status === STATUS_REJECTED) {
+    if (this.state === REJECTED) {
       onRejected(this.reason)
     }
   }
