@@ -1,16 +1,16 @@
 
 
-## JavaScript好用还未火的注解@Decorator（注解|装饰器|装潢器）
+## JavaScript好用还未火的注解@Decorator（注解 | 装饰器 | 装潢器）
 
 [TOC]
 
 ### 一、阅读收获
 
-1. What（是什么）-Why（为什么）-How（怎么用）-Where（哪里用）阐述方法论；
-2. AOP编程思想；
-3. JavaScript注解的弊端；
-4. 如何定义注解；
-5. 自定义注解如何传参；
+1. `What`（是什么）-`Why`（为什么）-`How`（怎么用）-`Where`（哪里用）阐述方法论；
+2. `AOP`编程思想；
+3. `JavaScript Decorator`的弊端；
+4. 如何定义`Decorator`；
+5. 自定义`Decorator`如何传参；
 6. 优雅的异常处理；
 7. 如何判断一个函数为异步函数；
 
@@ -30,9 +30,9 @@
 
 ​	`JavaScript`：同为`C`系列语言，`Java`的`AOP`那么好用，我也要（磨刀霍霍向猪羊，期待的小眼神）。
 
- 	注解无疑是对`AOP`最有力的设计，在`ES5`时代，可以通过 `Object.defineProperty` 来对对象属性／方法 进行访问修饰，但用起来需要写一堆东西；在`ES6`时代，可以通过`Proxy`来对对象属性 / 方法进行访问修饰。Decorator已经在`ES7`的提案中，也就是叫你敬请期待；借助Babel转码工具，我们可以先吃螃蟹。
+ 	`Decorator`无疑是对`AOP`最有力的设计，在`ES5`时代，可以通过 `Object.defineProperty` 来对对象属性／方法 进行访问修饰，但用起来需要写一堆东西；在`ES6`时代，可以通过`Proxy`来对对象属性 / 方法进行访问修饰。`Decorator`已经在`ES7`的提案中，也就是叫你敬请期待；借助Babel转码工具，我们可以先吃螃蟹。
 
-​	Decorator，可以不侵入原有代码内部的情况下修改类代码的行为，处理一些与具体业务无关的公共功能，常见：日志，异常，埋码等。[ES7 Decorator提案]( https://github.com/wycats/javascript-decorators )描述如下：
+​	`Decorator`，可以不侵入原有代码内部的情况下修改类代码的行为，处理一些与具体业务无关的公共功能，常见：日志，异常，埋码等。[ES7 Decorator提案]( https://github.com/wycats/javascript-decorators )描述如下：
 
 A decorator is:
 
@@ -47,7 +47,7 @@ A decorator is:
 
 #### 1. 为什么要用Decorator
 
-​	首先抛开“迎合”后端开发人员的`Class`写法，对应会引入的相关概念和特性，当然随着前端业务的发展，有时候也需要对应的特性。比如：`private`,`static`等只见于`Java`的特性，现如今通过Class语法糖能在前端实现同样的特性，换汤不换药，语法糖底层还是通过原生`JavaScript`来模拟实现相关特性的。前端`Class`编写风格更加"后端"，那么就更容易吸引一大波后端人员学习和使用`Javascript`，`Javascript`一统编程界“指日可待”。后端都学`Javascript`了，这让纯前端压力山大，我们要加快学习的脚步才行，技多不压身，举一反三学习，把后端的空气都咬完，让后端无法呼吸。
+​	首先抛开“迎合”后端开发人员的`Class`写法，对应会引入的相关概念和特性，当然随着前端业务的发展，有时候也需要对应的特性。比如：`private`,`static`等见于`Java`的特性，现如今通过`Class`语法糖能在前端实现同样的特性，换汤不换药，语法糖底层还是通过原生`JavaScript`来模拟实现相关特性的。前端`Class`编写风格更加"后端"，那么就更容易吸引一大波后端人员学习和使用`Javascript`，`Javascript`一统编程界“指日可待”。后端都学`Javascript`了，这让纯前端压力山大，我们要加快学习的脚步才行，技多不压身，举一反三学习，把后端的空气都咬完，让后端无法呼吸。
 
 ​	其次举个栗子阐述为什么要用`Decorator`：现实生活中我们可能也遇到过，百度过一个商品后，打开淘宝京东后，淘宝京东便能精准的推荐该商品的相关广告，大数据时代，我们慢慢越来越透明。转换为专业术语：埋码。
 
@@ -88,9 +88,10 @@ page.onBack()
 
 打印结果：
 
-02.png
 
-<span id="why">使用注解写法如下</span>：
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b378ad5fcfd?w=749&h=144&f=png&s=11904)
+
+<span id="why">使用`Decorator`写法如下</span>：
 
 ``` javascript
 // 埋码 监听用户使用情况
@@ -98,7 +99,7 @@ function monitor(name) {
   // 注意：
   // 实际中埋码数据是从一个单例store里面取
   // 比如，用户名，访问时间等
-  // 操作类型可作为注解参数
+  // 操作类型可作为`Decorator`参数
   console.log(`调用监听接口，发送监听数据 : ${name}`)
 }
 
@@ -154,7 +155,7 @@ page.onBack()
 
 打印结果：
 
-03.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b3d4ada57c6?w=744&h=146&f=png&s=12989)
 
 经过上面的栗子应该能直观的感受到面向切面编程核心：非侵入式，解耦。
 
@@ -163,24 +164,24 @@ page.onBack()
 不火的原因主要为：
 
 1. 还在`ES7`提案中，还未得到官方支持；
-2. 对Function写法支持不友善，很多用户和框架依然都用Function写法，比如：Vue 3.0、React Hook等都推崇Function写法，毕竟`Javascript`从骨子里就是用Function编程。
-3. 注解暂时不能串联，存在覆盖问题；
+2. 对`Function`写法支持不友善，很多用户和框架依然都用Function写法，比如：`Vue 3.0`、`React Hook`等都推崇`Function`写法，毕竟`Javascript`从骨子里就是用Function编程。
+3. `Decorator`暂时不能串联，存在覆盖问题；
 
 ### 四、How：怎么用
 
-​	目前标准还未支持Decorator，但是Babel已经支持相关写法，我们可以通过`get`、`set`来模拟实现。根据注解不同的切入点可以分为：`Class`,`Method`和`Property`三种`Decorator`。顺带介绍一下原生Function如何实现面向切面编程。
+​	目前标准还未支持Decorator，但是Babel已经支持相关写法，我们可以通过`get`、`set`来模拟实现。根据`Decorator`不同的切入点可以分为：`Class`,`Method`和`Property`三种`Decorator`。顺带介绍一下原生Function如何实现面向切面编程。
 
 #### 1. Babel支持
 
-​	在自我搭建的Webpack项目中使用`Decorator`，运行项目编译失败，终端报错，并提供了对应的解决方法。按照提示操作，便能在自我搭建的webpack项目使用`Decorator`了。
+​	在自我搭建的`Webpack`项目中使用`Decorator`，运行项目编译失败，终端报错，并提供了对应的解决方法。按照提示操作，便能在自我搭建的webpack项目使用`Decorator`了。
 
-01.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b402cc3e54d?w=831&h=462&f=png&s=27745)
 
-​	另外，亲测，在新版Vue-cli项目中已经默认支持`Decorator`写法了
+​	另外，亲测，在新版`Vue-cli`项目中已经默认支持`Decorator`写法了
 
 #### 2. Class Decorator
 
-​	切入点为`Class`，修饰整个Class，可以读取和修改类的方法和属性。需要传递参数，可以通过高阶的函数来实现传递参数，如下面的classDecoratorBuilder。
+​	切入点为`Class`，修饰整个`Class`，可以读取和修改类的方法和属性。需要传递参数，可以通过高阶的函数来实现传递参数，如下面的`classDecoratorBuilder`。
 
 ``` javascript
 // 埋码 监听用户使用情况
@@ -238,11 +239,11 @@ page.onBack()
 
 运行结果如下：
 
-04.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b44273c7e31?w=735&h=144&f=png&s=12849)
 
 #### 3. Methods Decorator
 
-​	切入点为Method，修饰方法，和Class注解功能相似，能额外的获取修饰的方法名。详见 [Why](#why) 中的栗子。这里就不赘述了。
+​	切入点为`Method`，修饰方法，和`Class``Decorator`功能相似，能额外的获取修饰的方法名。详见 [Why](#why) 中的栗子。这里就不赘述了。
 
 #### 4. Property Decorator
 
@@ -271,11 +272,11 @@ new Person().sayName()
 
 运行结果如下：
 
-05.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b467c9bb5a7?w=733&h=26&f=png&s=2362)
 
-#### 5. 注解优先级，串联
+#### 5. `Decorator`优先级，串联
 
-​	Java的注解功能强大，不仅有丰富的注解，而且注解还可以串联。**坏消息**：亲测JavaScript注解不能串联，存在覆盖问题，也就是优先级关系：Method Decorator>Class Decorator。当一个Method上定义了注解，则Class注解则不起作用。希望ES7标准能解决这个痛点。
+​	Java的`Decorator`功能强大，不仅有丰富的`Decorator`，而且`Decorator`还可以串联。**坏消息**：亲测`JavaScript``Decorator`不能串联，存在覆盖问题，也就是优先级关系：`Method Decorator` > `Class Decorator`。当一个`Method`上定义了`Decorator`，则`Class``Decorator`则不起作用。希望`ES7`标准能解决这个痛点。
 
 ``` javascript
 const classDecoratorBuilder = (name) => {
@@ -347,11 +348,11 @@ person.eat('rice')
 
 ​	运行结果如下：
 
-06.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b48f575421f?w=744&h=81&f=png&s=6612)
 
 #### 6. Function的“`Decorator`”
 
-​	注解目前只能应用于Class，不能用于修饰Function，因为Function的执行上下文是不确定的，太灵活了。但是AOP编程思想是先进的，合理的。我们可以采用不同的形式来实现Function的AOP，虽然没注解那么优雅。通过这种方式还可以解决注解串联的痛点。
+​	`Decorator`目前只能应用于`Class`，不能用于修饰`Function`，因为`Function`的执行上下文是不确定的，太灵活了。但是`AOP`编程思想是先进的，合理的。我们可以采用不同的形式来实现`Function`的`AOP`，虽然没`Decorator`那么优雅。通过这种方式还可以解决`Decorator`串联的痛点。
 
 ``` javascript
 function monitor(name) {
@@ -373,7 +374,7 @@ let onLike = (pageName) => {
 let onAttention = (author) => {
   console.log('原关注正常逻辑，求关注：', author)
 }
-// 类似注解
+// 类似`Decorator`
 onWatch = functionAOP(
   '****我串联啦****',
   functionAOP('functionAOP:帅哥靓妹X访问了xxx', onWatch)
@@ -381,14 +382,14 @@ onWatch = functionAOP(
 onLike = functionAOP('functionAOP:帅哥靓妹X点赞了xxx', onLike)
 onAttention = functionAOP('functionAOP:帅哥靓妹X关注了xxx', onAttention)
 
-onWatch('JavaScript好用还未火的注解@Decorator')
-onLike('JavaScript好用还未火的注解@Decorator')
+onWatch('JavaScript好用还未火的`Decorator`@Decorator')
+onLike('JavaScript好用还未火的`Decorator`@Decorator')
 onAttention('JS强迫症患者')
 ```
 
 ​	运行结果如下：
 
-07.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b4af45c8f06?w=738&h=145&f=png&s=16194)
 
 ### 五、Where：哪里用
 
@@ -398,7 +399,7 @@ onAttention('JS强迫症患者')
 
 ​	一个好的应用，用户体验要良好，当用户使用核心功能，无论功能是否成功，都希望得到一个信息反馈，而不是感觉不到功能是否有运行，是否成功。核心功能运行成功的时候弹出消息：xxx功能成功；失败的时候弹出错误：xxx功能失败，请xxx之类。
 
-​	废话不多说，直接撸代码。由于是模拟代码，一是为了节省时间，二是客官可以一览无遗，博主就不拆解文件了。合理的结构应该将api，Decorator，页面逻辑拆解到对应文件中，以供复用。
+​	废话不多说，直接撸代码。由于是模拟代码，一是为了节省时间，二是客官可以一览无遗，博主就不拆解文件了。合理的结构应该将`API`，`Decorator`，页面逻辑拆解到对应文件中，以供复用。
 
 ​	生成模拟接口的公共代码：
 
@@ -430,7 +431,7 @@ const promiseAPIBuilder = (code) => { // 模拟生成各种接口
 
 #### 2. 实现方式1：多catch
 
-​	我们可以修改axios拦截器，当状态code非0的时候一律认为功能失败，统一reject错误信息，最后在API调用处catch内统一做错误信息弹出。**相应弊端**：多处接口调用处都需要增加与业务无关的catch方法或者用try catch处理。
+​	我们可以修改`axios`拦截器，当状态`code`非0的时候一律认为功能失败，统一`reject`错误信息，最后在`API`调用处`catch`内统一做错误信息弹出。**相应弊端**：多处接口调用处都需要增加与业务无关的`catch`方法或者用`try catch`处理。
 
 ``` javascript
 const api = {
@@ -473,11 +474,11 @@ errorWithoutCatchAPI()
 
 运行结果：
 
-08.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b4d7a099fb3?w=742&h=96&f=png&s=7978)
 
 #### 3. 实现方式2：全局catch
 
-​	定义全局异常处理函数。**相应弊端**：情况多的话需要做很多case判断，因为引用很多没拦截的异常都会跑到全局异常处理函数。
+​	定义全局异常处理函数。**相应弊端**：情况多的话需要做很多`case`判断，因为引用很多没拦截的异常都会跑到全局异常处理函数。
 
 ``` javascript
 const api = {
@@ -527,11 +528,11 @@ errorWithoutCatchAPI()
 
 运行结果：
 
-09.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b4fb652d549?w=750&h=110&f=png&s=12264)
 
-#### 3. 优雅的实现方式3：注解
+#### 3. 优雅的实现方式3：`Decorator`
 
-注解修饰API接口管理文件。虽说也有Class写法的限制，但是我们可以通过其他方式避开这个限制。**注意带*号的代码**
+`Decorator`修饰`API`接口管理文件。虽说也有`Class`写法的限制，但是我们可以通过其他方式避开这个限制。**注意带*号的代码**
 
 ``` javascript
 // ****** catch error Decorator 构造器
@@ -552,7 +553,7 @@ const showTipDecoratorBulder = (errorHandler) => (target, propertyKey, descripto
     }
   }
 }
-// ****** 构造一个提示错误的注解
+// ****** 构造一个提示错误的`Decorator`
 const showTipDecorator = showTipDecoratorBulder((error) => {
   console.log(`Decorator error 消息提示 : ${error.message}`)
 })
@@ -597,9 +598,9 @@ errorWithoutCatchAPI()
 
 运行结果：
 
-10.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b543d778287?w=744&h=86&f=png&s=7720)
 
-附送：如何判断一个函数为AsyncFucntion。
+附送：如何判断一个函数为`AsyncFucntion`。
 
 ``` javascript
 /**
@@ -619,5 +620,11 @@ console.log('<<<< fn instanceof AsyncFucntion <<<', fn instanceof AsyncFucntion)
 
 运行结果：
 
-11.png
+![](https://user-gold-cdn.xitu.io/2020/5/24/17245b5697c6c37d?w=747&h=84&f=png&s=7630)
+
+
+
+![](https://user-gold-cdn.xitu.io/2020/4/20/17193bd15e085b6e?w=164&h=99&f=jpeg&s=3381)
+
+​																都看到这里了，点个赞，关注再走呗。
 
