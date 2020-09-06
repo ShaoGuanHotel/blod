@@ -5,7 +5,7 @@
 - [Lodash那些“多余”和让人眼前一亮的 API](https://juejin.im/post/5ed3cd366fb9a047f129c39a)
 - [JavaScript好用还未火的注解@Decorator（注解 | 装饰器 | 装潢器）](https://juejin.im/post/5eca298af265da77186a5869)
 
-下文**代码篇幅较大部分**，**只需关注带*号部分**，不会影响阅读体验
+下文**代码篇幅较大部分**，**只需关注带*号部分**，不会影响阅读体验 
 
 ### 一、本文收获
 
