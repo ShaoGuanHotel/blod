@@ -3,15 +3,19 @@
 
 计算机网络
 计算机网络面试问题集锦 https://blog.csdn.net/qq_39322743/article/details/79700863
+
 再看计算机体系基础 https://juejin.im/post/6844903943487619080
+
 HTTP和HTTPS详解 https://juejin.im/post/6844903604868874247
 
 手写
-手写async await的最简实现（20行）
+手写async await的最简实现（20行）https://juejin.im/post/6844904102053281806
 
 安全
 SQL注入技术专题—由浅入深【精华聚合】 https://zhuanlan.zhihu.com/p/23569276
+
 关于csrf,什么是csrf,怎么防范它?  https://juejin.im/post/6844903653757698062
+
 浅说 XSS 和 CSRF https://github.com/dwqs/blog/issues/68
 
 基础
