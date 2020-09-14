@@ -15,12 +15,18 @@ Function.prototype.myBind = function (content, ...defaultArgs) {
 function Person(name, age) {
   this.name = name
   this.age = age
+  console.log(`${this.name} ${this.age}`)
 }
 Person.prototype.hello = function () {
   console.log(`my name is ${this.name},I am ${this.age} years old`)
 }
 
-const P2 = Person.myBind('固定', '固定age')
+const obj = {
+  name: 'objName',
+  age: 'objAge',
+}
+const P2 = Person.bind(obj)
+P2()
 const p = new P2('a', 12)
 p.hello()
 console.log(p.age)
