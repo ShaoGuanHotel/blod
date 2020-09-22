@@ -5,7 +5,7 @@ Function.prototype.myCall = function (content, ...args) {
   const fnName = Symbol('myCall')
   content[fnName] = this
   const result = content[fnName](...args)
-  delete content[fnName]
+  Reflect.deleteProperty(content, fnName)
   return result
 }
 function test(a, b) {
