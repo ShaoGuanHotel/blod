@@ -1,28 +1,26 @@
-const PENDING = 'PENDING'
-const FULFILLED = 'FULFILLED'
-const REJECTED = 'REJECTED'
+const PENDING = Symbol('PENDING')
+const FULFILLED = Symbol('FULFILLED')
+const REJECTED = Symbol('REJECTED')
+const defaultFn = (_) => _
 
 class MyPromise {
+  reason = null
+  value = null
+  status = PENDING
+  successFns = []
+  errorFns = []
   constructor(excuter) {
-    this.value = ''
-    this.reason = ''
-    this.status = PENDING
-    this.successFns = []
-    this.errorFns = []
-
     const resolve = (value) => {
       if (this.status === PENDING) {
-        this.status = FULFILLED
         this.value = value
-
+        this.status = FULFILLED
         this.successFns.forEach((fn) => fn(this.value))
       }
     }
-
     const reject = (reason) => {
       if (this.status === PENDING) {
-        this.status = REJECTED
         this.reason = reason
+        this.status = REJECTED
         this.errorFns.forEach((fn) => fn(this.reason))
       }
     }
@@ -33,10 +31,10 @@ class MyPromise {
       reject(error)
     }
   }
-
   then(successFn, errorFn) {
-    successFn = successFn || ((_) => _)
-    successFn = successFn || ((_) => _)
+    successFn = successFn || defaultFn
+    errorFn = errorFn || defaultFn
+
     if (this.status === FULFILLED) {
       successFn(this.value)
     }
@@ -48,9 +46,11 @@ class MyPromise {
       this.errorFns.push(() => errorFn(this.reason))
     }
   }
-
   catch(fn) {
-    return this.then(undefined, fn)
+    return this.then(null, fn)
+  }
+  final(fn) {
+    return this.then(fn)
   }
 
   static resolve(value) {
@@ -60,44 +60,34 @@ class MyPromise {
     return new MyPromise((resolve, reject) => reject(value))
   }
   static race(promises) {
-    if (!Array.isArray(promises)) {
-      throw new TypeError('promises must be itearter')
+    if (!promises[Symbol.iterator]) {
+      throw 'cant found iterator from promises'
     }
     return new MyPromise((resolve, reject) => {
-      if (promises.length === 0) {
-        return resolve()
-      }
-      promises
-        .map((promise) => (promise instanceof MyPromise ? promise : MyPromise.resolve(promise)))
-        .forEach((promise) => {
-          promise.then(resolve, reject)
-        })
+      promises = [...promises].map((promise) => (promise instanceof MyPromise ? promise : MyPromise.resolve(promise)))
+      promises.forEach((promise) => promise.then(resolve, reject))
     })
   }
   static all(promises) {
-    if (!Array.isArray(promises)) {
-      throw new TypeError('promises must be iterater')
+    if (!promises[Symbol.iterator]) {
+      throw 'cant found iterator from promises'
     }
     return new MyPromise((resolve, reject) => {
-      if (promises.length === 0) {
-        return resolve([])
-      }
+      promises = [...promises].map((promise) => (promise instanceof MyPromise ? promise : MyPromise.resolve(promise)))
       let successTime = 0
       const result = []
-      const put2result = (i, val) => {
-        result[i] = val
+      const setValue2Result = (i, value) => {
+        result[i] = value
         if (++successTime === promises.length) {
           resolve(result)
         }
       }
-      promises
-        .map((promise) => (promise instanceof MyPromise ? promise : MyPromise.resolve(promise)))
-        .forEach((promise, index) => {
-          promise.then(
-            (val) => put2result(index, val),
-            (error) => reject(error)
-          )
-        })
+      promises.forEach((promise, i) =>
+        promise.then(
+          (value) => setValue2Result(i, value),
+          (error) => reject(error)
+        )
+      )
     })
   }
 }
@@ -118,12 +108,12 @@ const newAPI = (value, time) =>
   })
 
 const promises = [newAPI(1, 1), newAPI(2, 2), newAPI(3, 11), 4]
-Promise.all(promises).then(
+MyPromise.all(promises).then(
   ([res1, res2, res3, res4]) => {
     console.log(res1)
     console.log(res2)
     console.log(res3)
     console.log(res4)
   },
-  (error) => console.error('error -- ',error)
+  (error) => console.error('error -- ', error)
 )
